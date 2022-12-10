@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package com.story.community.core.resource.protos.domain;
+
+option java_multiple_files = true;
+option java_outer_classname = "ResourceDomainProto";
+
+message Lightnovel {
+	string name = 1;
+	string type = 2;
+	string author = 3;
+	string artist = 4;
+	string status = 5;
+	int32 charaterNumber = 6;
+}
