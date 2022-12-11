@@ -15,7 +15,7 @@ public class CustomServerEntryPoint implements ServerAuthenticationEntryPoint {
     public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatusCode.valueOf(UNAUTHORIZE_CODE));
-        return response.writeAndFlushWith(p -> Mono.error(ex));
+        return response.writeWith(Mono.just(response.bufferFactory().wrap(ex.getMessage().getBytes())));
     }
 
 }

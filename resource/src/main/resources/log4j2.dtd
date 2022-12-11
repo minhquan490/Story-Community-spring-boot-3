@@ -1,0 +1,32 @@
+<!ELEMENT Configuration (Properties,Appenders,Loggers)>
+<!ATTLIST Configuration status NMTOKEN #REQUIRED>
+<!ELEMENT Properties (Property)>
+<!ELEMENT Property (#PCDATA)>
+<!ATTLIST Property name NMTOKEN #REQUIRED>
+<!ELEMENT Appenders (RollingFile+,Console)>
+<!ELEMENT RollingFile (Filters,PatternLayout,SizeBasedTriggeringPolicy)>
+<!ATTLIST RollingFile name NMTOKEN #REQUIRED>
+<!ATTLIST RollingFile fileName CDATA #REQUIRED>
+<!ATTLIST RollingFile filePattern CDATA #REQUIRED>
+<!ELEMENT Filters (ThresholdFilter+)>
+<!ELEMENT ThresholdFilter EMPTY>
+<!ATTLIST ThresholdFilter level NMTOKEN #REQUIRED>
+<!ATTLIST ThresholdFilter onMatch NMTOKEN #REQUIRED>
+<!ATTLIST ThresholdFilter onMismatch NMTOKEN #REQUIRED>
+<!ELEMENT PatternLayout (pattern?)>
+<!ATTLIST PatternLayout pattern CDATA #IMPLIED>
+<!ELEMENT pattern (#PCDATA)>
+<!ELEMENT SizeBasedTriggeringPolicy EMPTY>
+<!ATTLIST SizeBasedTriggeringPolicy size CDATA #REQUIRED>
+<!ELEMENT Console (PatternLayout)>
+<!ATTLIST Console name NMTOKEN #REQUIRED>
+<!ATTLIST Console target NMTOKEN #REQUIRED>
+<!ELEMENT Loggers (Logger,Root)>
+<!ELEMENT Logger (AppenderRef+)>
+<!ATTLIST Logger name NMTOKEN #REQUIRED>
+<!ATTLIST Logger level NMTOKEN #REQUIRED>
+<!ATTLIST Logger additivity NMTOKEN #REQUIRED>
+<!ELEMENT AppenderRef EMPTY>
+<!ATTLIST AppenderRef ref NMTOKEN #REQUIRED>
+<!ELEMENT Root (AppenderRef)>
+<!ATTLIST Root level NMTOKEN #REQUIRED>

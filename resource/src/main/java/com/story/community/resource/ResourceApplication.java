@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.reactive.config.EnableWebFlux;
 
@@ -25,6 +26,7 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 @EnableWebFlux
 @EnableTransactionManagement
 @EnableCaching
+@EnableWebFluxSecurity
 public class ResourceApplication {
 
 	public static void main(String[] args) {

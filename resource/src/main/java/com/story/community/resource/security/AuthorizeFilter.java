@@ -7,18 +7,21 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
 import com.story.community.core.common.Constant;
+import com.story.community.core.common.sercurity.CustomServerEntryPoint;
 import com.story.community.core.resource.service.CustomerService;
 import com.story.community.core.utils.TokenUtils;
 import com.story.community.resource.exception.UnAuthorizeException;
@@ -32,13 +35,28 @@ import reactor.core.publisher.Mono;
  * @author hoangquan
  */
 @RequiredArgsConstructor
-public class LastFilter implements WebFilter {
+public class AuthorizeFilter implements WebFilter {
     private final CustomerService customerService;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        try {
+            return process(exchange, chain);
+        } catch (AuthenticationException e) {
+            return handleAuthException(exchange, e);
+        }
+    }
+
+    private Mono<Void> process(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         HttpHeaders headers = request.getHeaders();
+        List<String> ignoreHeder = headers.get(Constant.IGNORE_AUTHORIZE_HEADER);
+        if (ignoreHeder != null && !ignoreHeder.isEmpty()) {
+            String ignorePath = ignoreHeder.get(0);
+            if (ignorePath.equals("true")) {
+                return chain.filter(exchange);
+            }
+        }
         List<String> jwtHeaders = headers.get(Constant.AUTHORIZE_HEADER);
         if (jwtHeaders == null || jwtHeaders.isEmpty()) {
             throw new UnAuthorizeException("Login is required");
@@ -57,6 +75,11 @@ public class LastFilter implements WebFilter {
                 .doOnError(e -> doWhenUnAuthorize(e, jwt))
                 .subscribe();
         return chain.filter(exchange);
+    }
+
+    private Mono<Void> handleAuthException(ServerWebExchange exchange, AuthenticationException e) {
+        ServerAuthenticationEntryPoint entryPoint = new CustomServerEntryPoint();
+        return entryPoint.commence(exchange, e);
     }
 
     /**

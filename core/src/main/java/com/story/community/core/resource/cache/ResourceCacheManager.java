@@ -16,17 +16,12 @@ import org.springframework.cache.transaction.AbstractTransactionSupportingCacheM
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-import com.story.community.core.common.exception.CacheStorageResolveException;
-
-import lombok.extern.log4j.Log4j2;
-
 /**
  * The cache manager use in resource server. Support auto detect entity for
  * create cache storage
  * 
  * @author hoanquan
  */
-@Log4j2
 public class ResourceCacheManager extends AbstractTransactionSupportingCacheManager {
 
     private CacheObjectLoader cacheObjectLoader;
@@ -50,20 +45,14 @@ public class ResourceCacheManager extends AbstractTransactionSupportingCacheMana
     @Override
     protected Collection<? extends Cache> loadCaches() {
 		Collection<Cache> caches = new LinkedHashSet<>();
-		try {
-			Collection<CacheObject> cacheObjects = cacheObjectLoader.loadCacheObject(basePackage);
-			for (CacheObject co : cacheObjects) {
-				String cacheStorageName = co.getCacheStorageName();
-				if (cacheStorageName == null) {
-					continue;
-				}
-				Cache cache = new JCacheCache(
-                        createCache(co.getCacheStorageName()),
-                        isAllowNullValues);
-                caches.add(cache);
-            }
-		} catch (CacheStorageResolveException e) {
-			log.info("Skip");
+		Collection<CacheObject> cacheObjects = cacheObjectLoader.loadCacheObject(basePackage);
+		for (CacheObject co : cacheObjects) {
+			String cacheStorageName = co.getCacheStorageName();
+			if (cacheStorageName == null) {
+				continue;
+			}
+			Cache cache = new JCacheCache(createCache(co.getCacheStorageName()), isAllowNullValues);
+			caches.add(cache);
         }
         return caches;
     }

@@ -11,15 +11,18 @@ import com.story.community.core.common.sercurity.CustomAccessDeniedHandler;
 import com.story.community.core.common.sercurity.CustomServerEntryPoint;
 import com.story.community.core.resource.entities.customer.Role;
 import com.story.community.core.resource.service.CustomerService;
-import com.story.community.resource.security.FirstFilter;
-import com.story.community.resource.security.LastFilter;
-
-import lombok.RequiredArgsConstructor;
+import com.story.community.resource.security.AuthorizeFilter;
+import com.story.community.resource.security.IgnorePathFilter;
+import com.story.community.resource.security.LoggingFilter;
 
 @Configuration
-@RequiredArgsConstructor
 class SecurityWebFilterChainBean {
     private final CustomerService customerService;
+
+    public SecurityWebFilterChainBean(CustomerService customerService) {
+        super();
+        this.customerService = customerService;
+    }
 
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity httpSecurity) {
@@ -33,25 +36,27 @@ class SecurityWebFilterChainBean {
                 .disable()
                 .formLogin()
                 .disable()
+                .anonymous()
+                .and()
                 .authorizeExchange()
+                .pathMatchers(IgnorePathFilter.PATH_IGNORED.toArray(new String[0])).permitAll()
                 .pathMatchers("/admin/**").hasAuthority(Role.ADMIN.name())
                 .pathMatchers("/author/**").hasAuthority(Role.AUTHOR.name())
                 .pathMatchers("/reader/**").hasAuthority(Role.READER.name())
                 .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(new CustomServerEntryPoint())
-                .accessDeniedHandler(new CustomAccessDeniedHandler())
-                .and()
-                .anonymous()
-                .disable()
                 .httpBasic()
                 .disable()
                 .headers()
                 .cache()
                 .disable()
                 .and()
-                .addFilterBefore(new FirstFilter(), SecurityWebFiltersOrder.FIRST)
-                .addFilterAfter(new LastFilter(customerService), SecurityWebFiltersOrder.LAST)
+                .addFilterAt(new LoggingFilter(), SecurityWebFiltersOrder.FIRST)
+                .addFilterAt(new IgnorePathFilter(), SecurityWebFiltersOrder.HTTP_HEADERS_WRITER)
+                .addFilterAt(new AuthorizeFilter(customerService), SecurityWebFiltersOrder.AUTHENTICATION)
+                .exceptionHandling()
+                .accessDeniedHandler(new CustomAccessDeniedHandler())
+                .authenticationEntryPoint(new CustomServerEntryPoint())
+                .and()
                 .build();
     }
 }

@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
  * @author hoangquan
  */
 @Log4j2
-public class FirstFilter implements WebFilter {
+public class LoggingFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
