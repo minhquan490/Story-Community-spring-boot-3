@@ -15,7 +15,7 @@ public class CustomAccessDeniedHandler implements ServerAccessDeniedHandler {
     public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatusCode.valueOf(ACCESS_DENIED_CODE));
-        return response.writeAndFlushWith(f -> Mono.error(denied));
+        return response.writeWith(Mono.just(response.bufferFactory().wrap(denied.getMessage().getBytes())));
     }
 
 }

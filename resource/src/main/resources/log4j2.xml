@@ -38,6 +38,7 @@
             <!-- change your package name here -->
             <AppenderRef ref="infoFile" />
             <AppenderRef ref="errorFile" />
+            <AppenderRef ref="Console" />
         </Logger>
         <Root level="error">
             <AppenderRef ref="errorFile" />

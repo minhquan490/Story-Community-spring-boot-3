@@ -39,6 +39,7 @@ public class IgnorePathFilter implements WebFilter {
                 b.header(Constant.IGNORE_AUTHORIZE_HEADER, "true");
             });
             builder.principal(exchange.getPrincipal());
+            builder.response(exchange.getResponse());
             newExchange = builder.build();
         }
         return chain.filter(newExchange == null ? exchange : newExchange);

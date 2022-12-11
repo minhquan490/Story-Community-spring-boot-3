@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -49,6 +50,7 @@ public class AuthorizeFilter implements WebFilter {
 
     private Mono<Void> process(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+        ServerHttpResponse response = exchange.getResponse();
         HttpHeaders headers = request.getHeaders();
         List<String> ignoreHeder = headers.get(Constant.IGNORE_AUTHORIZE_HEADER);
         if (ignoreHeder != null && !ignoreHeder.isEmpty()) {
@@ -62,7 +64,6 @@ public class AuthorizeFilter implements WebFilter {
             throw new UnAuthorizeException("Login is required");
         }
         String jwt = jwtHeaders.get(0);
-        exchange.getResponse().getHeaders().add(Constant.AUTHORIZE_HEADER, jwt);
         String username = null;
         try {
             username = TokenUtils.decode(jwt).getClaim("username");
@@ -74,6 +75,7 @@ public class AuthorizeFilter implements WebFilter {
                 .doOnSuccess(this::processUserDetails)
                 .doOnError(e -> doWhenUnAuthorize(e, jwt))
                 .subscribe();
+        addResponseHeader(response, jwt, headers);
         return chain.filter(exchange);
     }
 
@@ -169,5 +171,22 @@ public class AuthorizeFilter implements WebFilter {
                         .set(TokenUtils.encodeJwt("username", c.getAccount().getUsername()).getTokenValue()))
                 .doOnError(e -> doWhenUnAuthorize(e, refreshToken));
         return atomicReference.get();
+    }
+
+    /**
+     * Add jwt and refresh token to response header for all reponse.
+     * 
+     * @param response       to add header
+     * @param jwt            for add to response header
+     * @param requestHeaders request header for extract refresh token
+     */
+    private void addResponseHeader(ServerHttpResponse response, String jwt, HttpHeaders requestHeaders) {
+        HttpHeaders responseHeaders = response.getHeaders();
+        String refreshToken = requestHeaders.get(Constant.REFRESH_TOKEN_HEADER).get(0);
+        if (!responseHeaders.containsKey(Constant.AUTHORIZE_HEADER)
+                && !responseHeaders.containsKey(Constant.REFRESH_TOKEN_HEADER)) {
+            responseHeaders.add(Constant.AUTHORIZE_HEADER, jwt);
+            responseHeaders.add(Constant.REFRESH_TOKEN_HEADER, refreshToken);
+        }
     }
 }

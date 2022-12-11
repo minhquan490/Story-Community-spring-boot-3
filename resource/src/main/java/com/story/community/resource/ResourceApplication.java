@@ -28,7 +28,6 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 @EnableCaching
 @EnableWebFluxSecurity
 public class ResourceApplication {
-
 	public static void main(String[] args) {
 		new SpringApplicationBuilder(ResourceApplication.class)
 				.lazyInitialization(true)

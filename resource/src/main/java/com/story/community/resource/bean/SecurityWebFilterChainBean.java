@@ -14,6 +14,7 @@ import com.story.community.core.resource.service.CustomerService;
 import com.story.community.resource.security.AuthorizeFilter;
 import com.story.community.resource.security.IgnorePathFilter;
 import com.story.community.resource.security.LoggingFilter;
+import com.story.community.resource.security.PermissionFilter;
 
 @Configuration
 class SecurityWebFilterChainBean {
@@ -41,8 +42,8 @@ class SecurityWebFilterChainBean {
                 .authorizeExchange()
                 .pathMatchers(IgnorePathFilter.PATH_IGNORED.toArray(new String[0])).permitAll()
                 .pathMatchers("/admin/**").hasAuthority(Role.ADMIN.name())
-                .pathMatchers("/author/**").hasAuthority(Role.AUTHOR.name())
-                .pathMatchers("/reader/**").hasAuthority(Role.READER.name())
+                .pathMatchers("/author/**").hasAnyAuthority(Role.AUTHOR.name(), Role.ADMIN.name())
+                .pathMatchers("/reader/**").hasAnyAuthority(Role.READER.name(), Role.ADMIN.name(), Role.AUTHOR.name())
                 .and()
                 .httpBasic()
                 .disable()
@@ -53,6 +54,7 @@ class SecurityWebFilterChainBean {
                 .addFilterAt(new LoggingFilter(), SecurityWebFiltersOrder.FIRST)
                 .addFilterAt(new IgnorePathFilter(), SecurityWebFiltersOrder.HTTP_HEADERS_WRITER)
                 .addFilterAt(new AuthorizeFilter(customerService), SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterAt(new PermissionFilter(), SecurityWebFiltersOrder.AUTHORIZATION)
                 .exceptionHandling()
                 .accessDeniedHandler(new CustomAccessDeniedHandler())
                 .authenticationEntryPoint(new CustomServerEntryPoint())
