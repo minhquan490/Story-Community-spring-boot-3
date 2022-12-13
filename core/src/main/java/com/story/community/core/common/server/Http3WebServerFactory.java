@@ -140,6 +140,8 @@ public class Http3WebServerFactory extends AbstractReactiveWebServerFactory {
 
     private HttpServer createHttpServer() {
         HttpServer server = HttpServer.create();
+        server.accessLog(true);
+        server.compress(true);
         if (this.resourceFactory != null) {
             LoopResources resources = this.resourceFactory.getLoopResources();
             Assert.notNull(resources, "No LoopResources: is ReactorResourceFactory not initialized yet?");

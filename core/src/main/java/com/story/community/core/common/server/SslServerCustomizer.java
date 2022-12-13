@@ -52,7 +52,7 @@ public class SslServerCustomizer implements NettyServerCustomizer {
     @Override
     public HttpServer apply(HttpServer server) {
         AbstractProtocolSslContextSpec<?> sslContextSpec = createSslContextSpec();
-        return server.secure((spec) -> spec.sslContext(sslContextSpec));
+        return server.secure(spec -> spec.sslContext(sslContextSpec));
     }
 
     protected AbstractProtocolSslContextSpec<?> createSslContextSpec() {
@@ -62,7 +62,7 @@ public class SslServerCustomizer implements NettyServerCustomizer {
         } else {
             sslContextSpec = Http11SslContextSpec.forServer(getKeyManagerFactory(this.ssl, this.sslStoreProvider));
         }
-        sslContextSpec.configure((builder) -> {
+        sslContextSpec.configure(builder -> {
             builder.trustManager(getTrustManagerFactory(this.ssl, this.sslStoreProvider));
             if (this.ssl.getEnabledProtocols() != null) {
                 builder.protocols(this.ssl.getEnabledProtocols());

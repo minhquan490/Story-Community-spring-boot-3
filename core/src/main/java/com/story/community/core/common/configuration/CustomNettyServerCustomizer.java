@@ -29,6 +29,8 @@ import org.springframework.boot.web.server.SslStoreProvider;
 import org.springframework.boot.web.server.WebServerException;
 import org.springframework.util.ResourceUtils;
 
+import com.story.community.core.common.server.SslServerCustomizer;
+
 import io.netty.handler.ssl.ClientAuth;
 import lombok.RequiredArgsConstructor;
 import reactor.netty.http.Http11SslContextSpec;

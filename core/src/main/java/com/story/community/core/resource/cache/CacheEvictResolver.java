@@ -34,7 +34,6 @@ public class CacheEvictResolver implements CacheResolver {
 
     @Around("cacheEvictPointCut()")
     @Override
-    @SuppressWarnings("null")
     public Object process(ProceedingJoinPoint jointPoint) throws Throwable {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();

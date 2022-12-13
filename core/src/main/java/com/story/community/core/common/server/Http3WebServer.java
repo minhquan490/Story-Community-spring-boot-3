@@ -28,9 +28,9 @@ import org.springframework.util.ResourceUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.epoll.EpollDatagramChannel;
+import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.unix.Errors.NativeIoException;
 import io.netty.incubator.codec.http3.Http3;
 import io.netty.incubator.codec.quic.InsecureQuicTokenHandler;
@@ -220,7 +220,7 @@ public class Http3WebServer implements WebServer {
         List<String> supportProtocol = new ArrayList<>(Arrays.asList(Http3.supportedApplicationProtocols()));
         supportProtocol.add(HttpProtocol.H2.name().toLowerCase());
         supportProtocol.add(HttpProtocol.H2C.name().toLowerCase());
-        NioEventLoopGroup group = new NioEventLoopGroup(1);
+        EpollEventLoopGroup group = new EpollEventLoopGroup(1);
         QuicSslContext sslContext = QuicSslContextBuilder
                 .forServer(keyFile, null, certChainFile)
                 .applicationProtocols(supportProtocol.toArray(new String[0])).build();
@@ -238,7 +238,7 @@ public class Http3WebServer implements WebServer {
         Bootstrap bootstrap = new Bootstrap();
         return bootstrap
                 .group(group)
-                .channel(NioDatagramChannel.class)
+                .channel(EpollDatagramChannel.class)
                 .handler(codec)
                 .bind(new InetSocketAddress(port))
                 .sync()
