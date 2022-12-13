@@ -34,7 +34,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="com.story.community.resource" level="debug" additivity="false">
+        <Logger name="com.story.community" level="debug" additivity="false">
             <!-- change your package name here -->
             <AppenderRef ref="infoFile" />
             <AppenderRef ref="errorFile" />
